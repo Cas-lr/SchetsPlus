@@ -43,6 +43,7 @@ public class SchetsWin : Form
                                 , new GumTool()
                                 };
         String[] deKleuren = { "Black", "Red", "Green", "Blue", "Yellow", "Magenta", "Cyan" };
+        String[] deFiletypes = { ".png", ".jpg", ".bmp", ".jpeg", ".gif" };
 
         this.ClientSize = new Size(700, 500);
         huidigeTool = deTools[0];
@@ -70,7 +71,7 @@ public class SchetsWin : Form
         menuStrip = new MenuStrip();
         menuStrip.Visible = false;
         this.Controls.Add(menuStrip);
-        this.maakFileMenu();
+        this.maakFileMenu(deFiletypes);
         this.maakToolMenu(deTools);
         this.maakActieMenu(deKleuren);
         this.maakToolButtons(deTools);
@@ -79,11 +80,15 @@ public class SchetsWin : Form
         this.veranderAfmeting(null, null);
     }
 
-    private void maakFileMenu()
+    private void maakFileMenu(String[] filetypes)
     {   
         ToolStripMenuItem menu = new ToolStripMenuItem("File");
         menu.MergeAction = MergeAction.MatchOnly;
-        menu.DropDownItems.Add("Sluiten", null, this.afsluiten);
+        menu.DropDownItems.Add("Afsluiten", null, this.afsluiten);
+        ToolStripMenuItem submenu = new ToolStripMenuItem("Opslaan als");
+        foreach (string f in filetypes)
+            submenu.DropDownItems.Add(f, null, schetscontrol.Opslaan);
+        menu.DropDownItems.Add(submenu);
         menuStrip.Items.Add(menu);
     }
 

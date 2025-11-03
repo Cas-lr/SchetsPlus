@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 public class SchetsControl : UserControl
@@ -52,5 +53,10 @@ public class SchetsControl : UserControl
     public void VeranderKleurViaMenu(object obj, EventArgs ea)
     {   string kleurNaam = ((ToolStripMenuItem)obj).Text;
         penkleur = Color.FromName(kleurNaam);
+    }
+    public void Opslaan(object obj, EventArgs ea)
+    {
+        string filetype = ((ToolStripMenuItem)obj).Text;
+        schets.bitmap.Save($"../../../drawings/{filetype}");
     }
 }
