@@ -5,15 +5,16 @@ using System.Windows.Forms;
 public class SchetsEditor : Form
 {
     private MenuStrip menuStrip;
+    
 
     public SchetsEditor()
     {   
-        this.ClientSize = new Size(800, 600);
+        this.ClientSize = new Size(1000, 700);
         menuStrip = new MenuStrip();
         this.Controls.Add(menuStrip);
         this.maakFileMenu();
         this.maakHelpMenu();
-        this.Text = "Schets editor";
+        this.Text = $"Schets Editor CJ";
         this.IsMdiContainer = true;
         this.MainMenuStrip = menuStrip;
     }
@@ -46,7 +47,16 @@ public class SchetsEditor : Form
         s.Show();
     }
     private void afsluiten(object sender, EventArgs e)
-    {   
+    {
+        Form child = this.FindForm();
+        if (child is SchetsControl sw && sw.IsGewijzigd)
+        {
+            var result = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Weet u zeker dat u wilt afsluiten?", "Bevestig afsluiten", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result == DialogResult.No)
+            {
+                return; // Annuleer afsluiten
+            }
+        }
         this.Close();
     }
 }

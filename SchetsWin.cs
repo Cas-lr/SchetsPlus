@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 
 public class SchetsWin : Form
-{   
+{
     MenuStrip menuStrip;
     SchetsControl schetscontrol;
     ISchetsTool huidigeTool;
@@ -13,7 +13,7 @@ public class SchetsWin : Form
 
     private void veranderAfmeting(object o, EventArgs ea)
     {
-        schetscontrol.Size = new Size ( this.ClientSize.Width  - 70
+        schetscontrol.Size = new Size(this.ClientSize.Width - 70
                                       , this.ClientSize.Height - 50);
         paneel.Location = new Point(64, this.ClientSize.Height - 30);
     }
@@ -35,6 +35,7 @@ public class SchetsWin : Form
 
     public SchetsWin()
     {
+        this.Text = "Untitled";
         ISchetsTool[] deTools = { new PenTool()         
                                 , new LijnTool()
                                 , new RechthoekTool()
@@ -45,9 +46,9 @@ public class SchetsWin : Form
                                 , new GumTool()
                                 };
         String[] deKleuren = { "Black", "Red", "Green", "Blue", "Yellow", "Magenta", "Cyan" };
-        String[] deFiletypes = { ".png", ".jpg", ".bmp", ".jpeg", ".gif" };
+        String[] deFiletypes = { ".bmp", ".gif", ".jpeg", ".jpg", ".png" };
 
-        this.ClientSize = new Size(700, 500);
+        this.ClientSize = new Size(770, 550);
         huidigeTool = deTools[0];
 
         schetscontrol = new SchetsControl();
@@ -80,6 +81,11 @@ public class SchetsWin : Form
         this.maakActieButtons(deKleuren);
         this.Resize += this.veranderAfmeting;
         this.veranderAfmeting(null, null);
+    }
+    public string windowNaam
+    {
+        get { return this.Text; }
+        set { this.Text = value; }
     }
 
     private void maakFileMenu(String[] filetypes)

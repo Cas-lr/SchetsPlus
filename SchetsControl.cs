@@ -8,7 +8,11 @@ public class SchetsControl : UserControl
 {   
     private Schets schets;
     private Color penkleur;
+    private bool isGewijzigd;
 
+    public bool IsGewijzigd
+    { get { return isGewijzigd; }
+    }
     public Color PenKleur
     { get { return penkleur; }
     }
@@ -27,6 +31,7 @@ public class SchetsControl : UserControl
     }
     private void teken(object o, PaintEventArgs pea)
     {   schets.Teken(pea.Graphics);
+        isGewijzigd = true;
     }
     private void veranderAfmeting(object o, EventArgs ea)
     {   schets.VeranderAfmeting(this.ClientSize);
@@ -56,7 +61,11 @@ public class SchetsControl : UserControl
     }
     public void Opslaan(object obj, EventArgs ea)
     {
-        string filetype = ((ToolStripMenuItem)obj).Text;
-        schets.bitmap.Save($"../../../drawings/{filetype}");
+        Form owner = this.FindForm();
+        string fileNaam = owner?.Text ?? "Untitled";
+        if (owner is SchetsWin s) fileNaam = s.windowNaam;
+        string fileType = ((ToolStripMenuItem)obj).Text;
+        schets.bitmap.Save($"../../../drawings/{fileNaam}{fileType}");
+        isGewijzigd = false;
     }
 }
