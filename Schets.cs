@@ -5,8 +5,7 @@ using System.Drawing;
 public class Schets
 {
     public Bitmap bitmap;
-    private Bitmap bitmapchanged;
-    public Bitmap bitmapcopy;
+    public List<Doodle> doodles = new List<Doodle>();
 
     public Schets()
     {
@@ -43,4 +42,13 @@ public class Schets
     {
         bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
     }
+}
+
+public class Doodle
+{
+    public string Type;
+    public Point Start;
+    public Point Eind;
+    public Color Kleur;
+    public string Tekst;
 }
