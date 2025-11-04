@@ -6,8 +6,8 @@ using System.Windows.Forms;
 public class SchetsWin : Form
 {
     MenuStrip menuStrip;
-    SchetsControl schetscontrol;
     ISchetsTool huidigeTool;
+    SchetsControl schetscontrol;
     Panel paneel;
     bool vast;
 
@@ -30,6 +30,15 @@ public class SchetsWin : Form
 
     private void afsluiten(object obj, EventArgs ea)
     {
+        if (!schetscontrol.kanAfsluiten)
+        {
+            var result = MessageBox.Show(
+                        "Er zijn niet-opgeslagen wijzigingen in één of meer tekenvensters. Weet u zeker dat u wilt afsluiten?",
+                        "Bevestig afsluiten",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+            if (result == DialogResult.No) return;
+        }
         this.Close();
     }
 
@@ -53,23 +62,25 @@ public class SchetsWin : Form
 
         schetscontrol = new SchetsControl();
         schetscontrol.Location = new Point(64, 10);
+
         schetscontrol.MouseDown += (object o, MouseEventArgs mea) =>
                                     {   vast=true;  
-                                        huidigeTool.MuisVast(schetscontrol, mea.Location); 
+                                        huidigeTool.MuisVast(schetscontrol, mea.Location); isGewijzigd();
                                     };
         schetscontrol.MouseMove += (object o, MouseEventArgs mea) =>
                                     {   if (vast)
-                                        huidigeTool.MuisDrag(schetscontrol, mea.Location); 
+                                        huidigeTool.MuisDrag(schetscontrol, mea.Location); isGewijzigd();
                                     };
         schetscontrol.MouseUp   += (object o, MouseEventArgs mea) =>
                                     {   if (vast)
-                                        huidigeTool.MuisLos (schetscontrol, mea.Location);
+                                        huidigeTool.MuisLos (schetscontrol, mea.Location); isGewijzigd();
                                         vast = false; 
                                     };
         schetscontrol.KeyPress +=  (object o, KeyPressEventArgs kpea) => 
-                                    {   huidigeTool.Letter  (schetscontrol, kpea.KeyChar); 
+                                    {   huidigeTool.Letter  (schetscontrol, kpea.KeyChar); isGewijzigd();
                                     };
         this.Controls.Add(schetscontrol);
+
 
         menuStrip = new MenuStrip();
         menuStrip.Visible = false;
@@ -86,6 +97,10 @@ public class SchetsWin : Form
     {
         get { return this.Text; }
         set { this.Text = value; }
+    }
+    private void isGewijzigd()
+    {
+        this.kanAfsluiten = schetscontrol.kanAfsluiten;
     }
 
     private void maakFileMenu(String[] filetypes)

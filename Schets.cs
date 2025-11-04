@@ -5,10 +5,13 @@ using System.Drawing;
 public class Schets
 {
     public Bitmap bitmap;
-        
+    private Bitmap bitmapchanged;
+    public Bitmap bitmapcopy;
+
     public Schets()
     {
         bitmap = new Bitmap(1, 1);
+        bitmapcopy = (Bitmap)bitmap.Clone;
     }
     public Graphics BitmapGraphics
     {

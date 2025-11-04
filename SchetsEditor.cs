@@ -1,11 +1,13 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 
 public class SchetsEditor : Form
 {
+    public bool kanAfsluiten = true;
     private MenuStrip menuStrip;
-    
 
     public SchetsEditor()
     {   
@@ -45,17 +47,23 @@ public class SchetsEditor : Form
         SchetsWin s = new SchetsWin();
         s.MdiParent = this;
         s.Show();
+        Debug.WriteLine("Nieuw schetsvenster geopend.");
     }
-    private void afsluiten(object sender, EventArgs e)
+    private void isGewijzigd(object o, EventArgs ea)
     {
-        Form child = this.FindForm();
-        if (child is SchetsControl sw && sw.IsGewijzigd)
+        this.kanAfsluiten = false;
+    }
+    public void afsluiten(object sender, EventArgs e)
+    {
+        bool check = this.kanAfsluiten;
+        if ()
         {
-            var result = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Weet u zeker dat u wilt afsluiten?", "Bevestig afsluiten", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (result == DialogResult.No)
-            {
-                return; // Annuleer afsluiten
-            }
+            var result = MessageBox.Show(
+                        "Er zijn niet-opgeslagen wijzigingen in één of meer tekenvensters. Weet u zeker dat u wilt afsluiten?",
+                        "Bevestig afsluiten",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+            if (result == DialogResult.No) return;
         }
         this.Close();
     }
