@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.VisualBasic;
 
 public class SchetsWin : Form
 {
@@ -90,6 +91,28 @@ public class SchetsWin : Form
         this.Resize += this.veranderAfmeting;
         this.veranderAfmeting(null, null);
     }
+    private void verandernaam(object obj, EventArgs ea)
+    { //https://stackoverflow.com/questions/10797774/messagebox-with-input-field
+        Form owner = this.FindForm();
+        string WindowNaam = owner?.Text ?? "Untitled";
+        try
+        {
+            string nieuweNaam = Interaction.InputBox("Wat is de nieuwe naam?", "Rename", $"{WindowNaam}");
+            if (nieuweNaam == "")
+            {
+                nieuweNaam = $"{WindowNaam}";
+            }
+            else
+            {
+                owner.Text = nieuweNaam;
+                owner.Invalidate();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
     public string windowNaam
     {
         get { return this.Text; }
@@ -109,6 +132,7 @@ public class SchetsWin : Form
         ToolStripMenuItem menu = new ToolStripMenuItem("File");
         menu.MergeAction = MergeAction.MatchOnly;
         menu.DropDownItems.Add("Afsluiten", null, this.afsluiten);
+        menu.DropDownItems.Add("Rename", null, this.verandernaam);
         ToolStripMenuItem submenu = new ToolStripMenuItem("Opslaan als");
         foreach (string f in filetypes)
             submenu.DropDownItems.Add(f, null, schetscontrol.Opslaan);
