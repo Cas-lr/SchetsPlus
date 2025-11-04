@@ -6,7 +6,6 @@ using System.Windows.Forms;
 
 public class SchetsEditor : Form
 {
-    public bool kanAfsluiten = true;
     private MenuStrip menuStrip;
 
     public SchetsEditor()
@@ -49,21 +48,17 @@ public class SchetsEditor : Form
         s.Show();
         Debug.WriteLine("Nieuw schetsvenster geopend.");
     }
-    private void isGewijzigd(object o, EventArgs ea)
-    {
-        this.kanAfsluiten = false;
-    }
     public void afsluiten(object sender, EventArgs e)
     {
-        bool check = this.kanAfsluiten;
-        if ()
+        foreach (Form child in this.MdiChildren)
         {
-            var result = MessageBox.Show(
-                        "Er zijn niet-opgeslagen wijzigingen in één of meer tekenvensters. Weet u zeker dat u wilt afsluiten?",
-                        "Bevestig afsluiten",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Warning);
-            if (result == DialogResult.No) return;
+            if (child is SchetsWin sw && sw.IsGewijzigd)
+            {
+                var waarschuwing = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Wilt u afsluiten zonder op te slaan?", "Niet-opgeslagen wijzigingen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (waarschuwing == DialogResult.No)
+                    return; // cancel closing the editor
+                break; // user chose Yes, proceed to close
+            }
         }
         this.Close();
     }

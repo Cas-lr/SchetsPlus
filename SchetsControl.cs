@@ -7,7 +7,6 @@ using System.Windows.Forms;
 
 public class SchetsControl : UserControl
 {   
-    public bool kanAfsluiten;
     private Schets schets;
     private Color penkleur;
 
@@ -22,7 +21,6 @@ public class SchetsControl : UserControl
     {   this.BorderStyle = BorderStyle.Fixed3D;
         this.schets = new Schets();
         this.schets.bitmapcopy = (Bitmap)this.schets.bitmap.Clone();
-        this.kanAfsluiten = true;
         this.Paint += this.teken;
         this.Resize += this.veranderAfmeting;
         this.veranderAfmeting(null, null);
@@ -30,10 +28,6 @@ public class SchetsControl : UserControl
     }
     protected override void OnPaintBackground(PaintEventArgs e)
     {
-    }
-    private void isGewijzigd()
-    {
-        this.kanAfsluiten = BitmapsGelijk(schets.bitmap, schets.bitmapcopy);
     }
     private void teken(object o, PaintEventArgs pea)
     {   schets.Teken(pea.Graphics);
@@ -71,26 +65,9 @@ public class SchetsControl : UserControl
         if (owner is SchetsWin s) fileNaam = s.windowNaam;
         string fileType = ((ToolStripMenuItem)obj).Text;
         schets.bitmap = (Bitmap)Image.FromFile($"../../../drawings/{fileNaam}{fileType}");
+        schets.MarkeerGesaved();
         Debug.WriteLine("Opened successfully.");
-        this.kanAfsluiten = true;
         this.Invalidate();
-    }
-    public bool BitmapsGelijk(Bitmap bmp1, Bitmap bmp2)
-    {
-        // Compare dimensions
-        if (bmp1.Width != bmp2.Width || bmp1.Height != bmp2.Height)
-            return false;
-
-        // Compare pixel data
-        for (int x = 0; x < bmp1.Width; x++)
-        {
-            for (int y = 0; y < bmp1.Height; y++)
-            {
-                if (bmp1.GetPixel(x, y) != bmp2.GetPixel(x, y))
-                    return false;
-            }
-        }
-        return true;
     }
     public void Opslaan(object obj, EventArgs ea)
     {
@@ -99,8 +76,11 @@ public class SchetsControl : UserControl
         if (owner is SchetsWin s) fileNaam = s.windowNaam;
         string fileType = ((ToolStripMenuItem)obj).Text;
         schets.bitmap.Save($"../../../drawings/{fileNaam}{fileType}");
+        schets.MarkeerGesaved();
         Debug.WriteLine("Saved successfully.");
-        this.schets.bitmapcopy = (Bitmap)this.schets.bitmap.Clone();
-        this.kanAfsluiten = true;
+    }
+    private void isGewijzigd()
+    { 
+        this.Invalidate();
     }
 }

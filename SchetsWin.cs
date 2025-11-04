@@ -30,14 +30,11 @@ public class SchetsWin : Form
 
     private void afsluiten(object obj, EventArgs ea)
     {
-        if (!schetscontrol.kanAfsluiten)
+        if (this.IsGewijzigd)
         {
-            var result = MessageBox.Show(
-                        "Er zijn niet-opgeslagen wijzigingen in één of meer tekenvensters. Weet u zeker dat u wilt afsluiten?",
-                        "Bevestig afsluiten",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Warning);
-            if (result == DialogResult.No) return;
+            var dlg = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Wilt u afsluiten zonder op te slaan?", "Niet-opgeslagen wijzigingen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dlg == DialogResult.No)
+                return;
         }
         this.Close();
     }
@@ -98,11 +95,15 @@ public class SchetsWin : Form
         get { return this.Text; }
         set { this.Text = value; }
     }
-    private void isGewijzigd()
+    public bool IsGewijzigd 
     {
-        this.kanAfsluiten = schetscontrol.kanAfsluiten;
+        get { return schetscontrol?.Schets?.IsGewijzigd ?? false; }
     }
-
+    public void isGewijzigd()
+    {
+        schetscontrol?.Schets?.MarkeerGewijzigd();
+    }
+    
     private void maakFileMenu(String[] filetypes)
     {   
         ToolStripMenuItem menu = new ToolStripMenuItem("File");

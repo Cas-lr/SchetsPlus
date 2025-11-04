@@ -3,44 +3,86 @@ using System.Collections.Generic;
 using System.Drawing;
 
 public class Schets
-{
-    public Bitmap bitmap;
+{   
+    private Bitmap _bitmap;
+    public Bitmap bitmap
+    {
+        get { return _bitmap; }
+        set
+        {
+            _bitmap = value;
+            OnBitmapChanged();
+        }
+    }
+    public Bitmap bitmapcopy;
+
     public List<Doodle> doodles = new List<Doodle>();
+
+    public event EventHandler BitmapChanged;
+
+    public bool IsGewijzigd { get; private set; }
 
     public Schets()
     {
-        bitmap = new Bitmap(1, 1);
-        bitmapcopy = (Bitmap)bitmap.Clone;
+        _bitmap = new Bitmap(1, 1);
+        bitmapcopy = (Bitmap)_bitmap.Clone();
+        IsGewijzigd = false;
+    }
+
+    protected virtual void OnBitmapChanged()
+    {
+        BitmapChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void MarkeerGewijzigd()
+    {
+        IsGewijzigd = true;
+        OnBitmapChanged();
+    }
+
+    public void MarkeerGesaved()
+    {
+        if (_bitmap != null)
+        {
+            bitmapcopy?.Dispose();
+            bitmapcopy = (Bitmap)_bitmap.Clone();
+        }
+        IsGewijzigd = false;
+        OnBitmapChanged();
+
     }
     public Graphics BitmapGraphics
     {
-        get { return Graphics.FromImage(bitmap); }
+        get { return Graphics.FromImage(_bitmap); }
     }
     public void VeranderAfmeting(Size sz)
     {
-        if (sz.Width > bitmap.Size.Width || sz.Height > bitmap.Size.Height)
+        if (sz.Width > _bitmap.Size.Width || sz.Height > _bitmap.Size.Height)
         {
-            Bitmap nieuw = new Bitmap( Math.Max(sz.Width,  bitmap.Size.Width)
-                                     , Math.Max(sz.Height, bitmap.Size.Height)
+            Bitmap nieuw = new Bitmap( Math.Max(sz.Width, _bitmap.Size.Width)
+                                     , Math.Max(sz.Height, _bitmap.Size.Height)
                                      );
             Graphics gr = Graphics.FromImage(nieuw);
             gr.FillRectangle(Brushes.White, 0, 0, sz.Width, sz.Height);
-            gr.DrawImage(bitmap, 0, 0);
-            bitmap = nieuw;
+            gr.DrawImage(_bitmap, 0, 0);
+            _bitmap = nieuw;
+            MarkeerGewijzigd();
         }
     }
     public void Teken(Graphics gr)
     {
-        gr.DrawImage(bitmap, 0, 0);
+        gr.DrawImage(_bitmap, 0, 0);
     }
     public void Schoon()
     {
-        Graphics gr = Graphics.FromImage(bitmap);
-        gr.FillRectangle(Brushes.White, 0, 0, bitmap.Width, bitmap.Height);
+        Graphics gr = Graphics.FromImage(_bitmap);
+        gr.FillRectangle(Brushes.White, 0, 0, _bitmap.Width, _bitmap.Height);
+        MarkeerGewijzigd();
     }
     public void Roteer()
     {
         bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
+        MarkeerGewijzigd();
     }
 }
 
