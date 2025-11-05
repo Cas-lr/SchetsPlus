@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Security.Cryptography;
 using System.Windows.Forms;
-using System.Diagnostics;
 
 public class SchetsEditor : Form
 {
