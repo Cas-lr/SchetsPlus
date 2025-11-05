@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using System.Diagnostics;
 using System.Collections.Generic;
 
 public class SchetsControl : UserControl
