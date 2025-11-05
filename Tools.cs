@@ -16,26 +16,28 @@ public abstract class StartpuntTool : ISchetsTool
 {
     protected Point startpunt;
     protected Brush kwast;
+    protected int dikte;
 
     public virtual void MuisVast(SchetsControl s, Point p)
     {   startpunt = p;
     }
     public virtual void MuisLos(SchetsControl s, Point p)
-    {   kwast = new SolidBrush(s.PenKleur);
+    {   kwast = new SolidBrush(s.PenKleur); dikte = s.PenDikte;
     }
     public abstract void MuisDrag(SchetsControl s, Point p);
     public abstract void Letter(SchetsControl s, char c);
 
     // Maakt een Doodle object aan om in de lijst van doodles te zetten.
     // Virtual zodat elke subklasse het heeft, en desnoods kan veranderen (tekst, pen)
-    protected virtual Doodle MaakDoodle(Point start, Point eind, Color kleur)
+    protected virtual Doodle MaakDoodle(Point start, Point eind, Color kleur, int dikte)
     {
         return new Doodle
         {
             Type = this.GetType().Name,
             Start = start,
             Eind = eind,
-            Kleur = kleur
+            Kleur = kleur,
+            Dikte = dikte
         };
     }
 }
@@ -73,7 +75,7 @@ public class TekstTool : StartpuntTool
             startpunt.X += (int)sz.Width;
 
             // Voeg letter toe aan doodles lijst
-            Doodle d = MaakDoodle(this.startpunt, this.startpunt, s.PenKleur);
+            Doodle d = MaakDoodle(this.startpunt, this.startpunt, s.PenKleur, s.PenDikte);
             s.doodles.Add(d);
 
             s.Invalidate();
@@ -97,6 +99,7 @@ public abstract class TweepuntTool : StartpuntTool
     public override void MuisVast(SchetsControl s, Point p)
     {   base.MuisVast(s, p);
         kwast = Brushes.Gray;
+        dikte = s.PenDikte;
     }
     public override void MuisDrag(SchetsControl s, Point p)
     {   s.Refresh();
@@ -129,7 +132,7 @@ public class RechthoekTool : TweepuntTool
     public override string ToString() { return "kader"; }
 
     public override void Bezig(Graphics g, Point p1, Point p2)
-    {   g.DrawRectangle(MaakPen(kwast,3), TweepuntTool.Punten2Rechthoek(p1, p2));
+    {   g.DrawRectangle(MaakPen(kwast,dikte), TweepuntTool.Punten2Rechthoek(p1, p2));
     }
 }
     
@@ -149,7 +152,7 @@ public class CirkelTool : TweepuntTool
 
     public override void Bezig(Graphics g, Point p1, Point p2)
     {
-        g.DrawEllipse(MaakPen(kwast, 3), TweepuntTool.Punten2Rechthoek(p1, p2));    
+        g.DrawEllipse(MaakPen(kwast, dikte), TweepuntTool.Punten2Rechthoek(p1, p2));    
     }
 }
 
@@ -170,7 +173,7 @@ public class LijnTool : TweepuntTool
 
     public override void Bezig(Graphics g, Point p1, Point p2)
     {   
-        g.DrawLine(MaakPen(this.kwast,3), p1, p2);
+        g.DrawLine(MaakPen(this.kwast, this.dikte), p1, p2);
     }
 }
 
