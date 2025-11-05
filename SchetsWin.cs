@@ -116,7 +116,7 @@ public class SchetsWin : Form
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Debug.WriteLine(e.Message);
         }
     }
     public string windowNaam
@@ -146,11 +146,11 @@ public class SchetsWin : Form
             var files = System.IO.Directory.EnumerateFiles(sourceDirectory, "*.txt", System.IO.SearchOption.AllDirectories);
             foreach (string tf in files)
                 submenu2.DropDownItems.Add(Path.GetFileName(tf), null, schetscontrol.Openen);
-            Console.WriteLine("Bestanden succesvol geladen voor openen menu.");
+            Debug.WriteLine("Bestanden succesvol geladen voor openen menu.");
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Debug.WriteLine(e.Message);
         }
         menu.DropDownItems.Add(submenu);
         menu.DropDownItems.Add(submenu2);
