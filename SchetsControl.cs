@@ -96,6 +96,22 @@ public class SchetsControl : UserControl
             Console.WriteLine(e.Message);
         }
     }
+    public void OpslaanAlsDoodleText(object obj, EventArgs ea) //opslaan als doodle text bestand
+    {
+        Form owner = this.FindForm();
+        string fileNaam = owner?.Text ?? "Untitled";
+        if (owner is SchetsWin s) fileNaam = s.windowNaam;
+        string fileType = ((ToolStripMenuItem)obj).Text;
+        List<string> doodleLines = new List<string>();
+        foreach (Doodle d in doodles)
+        {
+            string line = $"{d.Type},{d.Start.X},{d.Start.Y},{d.Eind.X},{d.Eind.Y},{d.Kleur.ToArgb()},{d.Dikte}";
+            doodleLines.Add(line);
+        }
+        File.WriteAllLines($"../../../drawingtxt/{fileNaam}{fileType}", doodleLines);
+        schets.MarkeerGesaved();
+        Debug.WriteLine("Doodle text saved successfully.");
+    }
     public void Opslaan(object obj, EventArgs ea) //opslaan als met behulp van de bestandsnaam van het huidige venster en het gekozen bestandstype
     {
         Form owner = this.FindForm();

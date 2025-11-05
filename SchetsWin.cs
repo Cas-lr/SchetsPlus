@@ -138,6 +138,7 @@ public class SchetsWin : Form
         ToolStripMenuItem submenu = new ToolStripMenuItem("Opslaan als");
         foreach (string f in filetypes)
             submenu.DropDownItems.Add(f, null, schetscontrol.Opslaan);
+        submenu.DropDownItems.Add(".txt", null, schetscontrol.OpslaanAlsDoodleText);
         ToolStripMenuItem submenu2 = new ToolStripMenuItem("Openen");
         try
         {
