@@ -93,7 +93,9 @@ public class Doodle
     public string Type { get; set; }
     public Point Start { get; set; }
     public Point Eind { get; set; }
+    public List<Point> Punten { get; set; } = new List<Point>();
     public Color Kleur { get; set; }
     public int Dikte { get; set; }
     public string Tekst { get; set; }
+    public float PenDikte { get; set; }
 }
