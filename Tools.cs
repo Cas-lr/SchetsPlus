@@ -50,10 +50,10 @@ public class TekstTool : StartpuntTool
                 Type = "TekstTool",
                 Kleur = s.PenKleur,
                 Start = this.startpunt,
-                Tekst = c.ToString()
+                Tekst = c.ToString(),
+                Eind = new Point(startpunt.X + (int)sz.Width, startpunt.Y + (int)sz.Height)
             };
             s.doodles.Add(DoodleLetter);
-            DoodleLetter.Eind = new Point(startpunt.X + (int)sz.Width, startpunt.Y + (int)sz.Height);
 
             if (s.doodles.Count > 0)
                 Debug.WriteLine($"Doodle toegevoegd: Type={DoodleLetter.Type}, Start=({DoodleLetter.Start.X},{DoodleLetter.Start.Y}), Einde=({DoodleLetter.Eind.X},{DoodleLetter.Eind.Y}), Tekst={DoodleLetter.Tekst}, Kleur={DoodleLetter.Kleur}");
@@ -246,6 +246,8 @@ public class GumTool : StartpuntTool
     {
         Rectangle r;
 
+        // voor de PenTool maakt het een rectangle voor elk segment
+        // en checkt het of de klik daar binnen valt
         if (d.Type == "PenTool")
         {
             for (int i = 1; i < d.Punten.Count; i++)
@@ -260,7 +262,8 @@ public class GumTool : StartpuntTool
             }
             return false;
         }
-        else // voor andere tools
+        // voor andere tools
+        else 
         {
             r = TweepuntTool.Punten2Rechthoek(d.Start, d.Eind);
             return r.Contains(p);
