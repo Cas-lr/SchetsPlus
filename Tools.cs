@@ -28,7 +28,7 @@ public abstract class StartpuntTool : ISchetsTool
     public abstract void Letter(SchetsControl s, char c);
 
     // Maakt een Doodle object aan om in de lijst van doodles te zetten.
-    // Virtual zodat elke subklasse het heeft, en desnoods kan veranderen (tekst, pen)
+    // Virtual zodat elke subklasse het heeft, en desnoods kan veranderen
     protected virtual Doodle MaakDoodle(Point start, Point eind, Color kleur, int dikte)
     {
         return new Doodle
@@ -48,35 +48,28 @@ public class TekstTool : StartpuntTool
 
     public override void MuisDrag(SchetsControl s, Point p) { }
 
-    //protected override Doodle MaakDoodle(Point start, Point eind, Color kleur)
-    //{
-    //    return new Doodle
-    //    {
-    //        Type = "Tekst",
-    //        Startpunt = start,
-    //        Eindpunt = start, // bij tekst irrelevant
-    //        Kleur = kleur,
-    //        Tekst = this.ingetypteTekst
-    //    };
-    //}
-
     public override void Letter(SchetsControl s, char c)
     {
         if (c >= 32)
         {
+            Doodle DoodleLetter = new Doodle
+            {
+                Type = "TekstTool",
+                Kleur = s.PenKleur,
+                Start = this.startpunt,
+                Tekst = c.ToString()
+            };
+            s.doodles.Add(DoodleLetter);
+            if (s.doodles.Count > 0)
+                Debug.WriteLine($"Doodle toegevoegd: Type={DoodleLetter.Type}, Start=({DoodleLetter.Start.X},{DoodleLetter.Start.Y}), Tekst={DoodleLetter.Tekst}, Kleur={DoodleLetter.Kleur}");
+
             Graphics gr = s.MaakBitmapGraphics();
             Font font = new Font("Tahoma", 40);
             string tekst = c.ToString();
-            SizeF sz = 
-            gr.MeasureString(tekst, font, this.startpunt, StringFormat.GenericTypographic);
-            gr.DrawString   (tekst, font, kwast, 
-                                            this.startpunt, StringFormat.GenericTypographic);
+            SizeF sz = gr.MeasureString(tekst, font, this.startpunt, StringFormat.GenericTypographic);
+            gr.DrawString(tekst, font, kwast, this.startpunt, StringFormat.GenericTypographic);
             // gr.DrawRectangle(Pens.Black, startpunt.X, startpunt.Y, sz.Width, sz.Height);
             startpunt.X += (int)sz.Width;
-
-            // Voeg letter toe aan doodles lijst
-            Doodle d = MaakDoodle(this.startpunt, this.startpunt, s.PenKleur, s.PenDikte);
-            s.doodles.Add(d);
 
             s.Invalidate();
         }
@@ -109,11 +102,18 @@ public abstract class TweepuntTool : StartpuntTool
     {   base.MuisLos(s, p);
         this.Compleet(s.MaakBitmapGraphics(), this.startpunt, p);
 
-        // voeg Doodle toe aan lijst in SchetsControl
-        Doodle d = MaakDoodle(this.startpunt, p, s.PenKleur, dikte);
-        s.doodles.Add(d);
-
-        Debug.WriteLine($"Doodle toegevoegd: Type={d.Type}, Start=({d.Start.X},{d.Start.Y}), Eind=({d.Eind.X},{d.Eind.Y}), Kleur={d.Kleur}");
+        // maak Doodle aan en voeg toe aan doodles lijst in SchetsControl
+        // wordt geerft door alle andere TweepuntTools (rechthoek, cirkel, lijn, etc..)
+        Doodle HuidigeDoodle = new Doodle
+        {
+            Start = this.startpunt,
+            Eind = p,
+            Kleur = s.PenKleur,
+            Dikte = dikte,
+        }
+        s.doodles.Add(HuidigeDoodle);
+        if (s.doodles.Count > 0)
+            Debug.WriteLine($"Doodle toegevoegd: Type={HuidigeDoodle.Type}, Start=({HuidigeDoodle.Start.X},{HuidigeDoodle.Start.Y}), Eind=({HuidigeDoodle.Eind.X},{HuidigeDoodle.Eind.Y}), Kleur={HuidigeDoodle.Kleur}");
 
         s.Invalidate();
     }
@@ -177,12 +177,13 @@ public class LijnTool : TweepuntTool
     }
 }
 
+// voor de PenTool willen we dat een lijn als een doodle wordt opgeslagen
+// met een lijst van punten voor de lijn segmenten
 public class PenTool : LijnTool
 {
     public override string ToString() { return "pen"; }
 
-    private Doodle HuidigeDoodle;
-
+    // MuisVast begint de Doodle en maakt de lijst van punten aan
     public override void MuisVast(SchetsControl s, Point p)
     {
         base.MuisVast(s, p);
@@ -196,18 +197,21 @@ public class PenTool : LijnTool
         };
     }
 
+    // MuisDrag tekent de segmenten nu zelf, vorige manier leidde tot ongewenste resultaten
+    // (gebruik van MuisLos binnen MuisDrag zorgde ervoor dat de Doodle niet als een geheel opgeslagen kon worden)
     public override void MuisDrag(SchetsControl s, Point p)
     {
+        // teken een lijnsegment van het vorige punt naar het nieuwe punt en voegt het nieuwe punt toe aan de lijst
         Graphics g = s.MaakBitmapGraphics();
         Point vorige = HuidigeDoodle.Punten[HuidigeDoodle.Punten.Count - 1];
         HuidigeDoodle.Punten.Add(p);
-
         using (Pen pen = new Pen(HuidigeDoodle.Kleur, HuidigeDoodle.Dikte))
             g.DrawLine(pen, vorige, p);
 
         s.Invalidate();
     }
 
+    // pas bij MuisLos wordt de gehele Doodle toegevoegd aan de lijst in SchetsControl
     public override void MuisLos(SchetsControl s, Point p)
     {
         HuidigeDoodle.Eind = p;
