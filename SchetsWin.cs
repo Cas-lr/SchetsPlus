@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.VisualBasic;
 using System.Diagnostics;
 
 public class SchetsWin : Form
 {
     MenuStrip menuStrip;
-    SchetsControl schetscontrol;
     ISchetsTool huidigeTool;
+    SchetsControl schetscontrol;
     Panel paneel;
     bool vast;
 
@@ -31,6 +32,12 @@ public class SchetsWin : Form
 
     private void afsluiten(object obj, EventArgs ea)
     {
+        if (this.IsGewijzigd)
+        {
+            var dlg = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Wilt u afsluiten zonder op te slaan?", "Niet-opgeslagen wijzigingen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dlg == DialogResult.No)
+                return;
+        }
         this.Close();
     }
 
@@ -54,23 +61,25 @@ public class SchetsWin : Form
 
         schetscontrol = new SchetsControl();
         schetscontrol.Location = new Point(64, 10);
+
         schetscontrol.MouseDown += (object o, MouseEventArgs mea) =>
                                     {   vast=true;  
-                                        huidigeTool.MuisVast(schetscontrol, mea.Location); 
+                                        huidigeTool.MuisVast(schetscontrol, mea.Location); isGewijzigd();
                                     };
         schetscontrol.MouseMove += (object o, MouseEventArgs mea) =>
                                     {   if (vast)
-                                        huidigeTool.MuisDrag(schetscontrol, mea.Location); 
+                                        huidigeTool.MuisDrag(schetscontrol, mea.Location); isGewijzigd();
                                     };
         schetscontrol.MouseUp   += (object o, MouseEventArgs mea) =>
                                     {   if (vast)
-                                        huidigeTool.MuisLos (schetscontrol, mea.Location);
+                                        huidigeTool.MuisLos (schetscontrol, mea.Location); isGewijzigd();
                                         vast = false; 
                                     };
         schetscontrol.KeyPress +=  (object o, KeyPressEventArgs kpea) => 
-                                    {   huidigeTool.Letter  (schetscontrol, kpea.KeyChar); 
+                                    {   huidigeTool.Letter  (schetscontrol, kpea.KeyChar); isGewijzigd();
                                     };
         this.Controls.Add(schetscontrol);
+
 
         menuStrip = new MenuStrip();
         menuStrip.Visible = false;
@@ -83,17 +92,48 @@ public class SchetsWin : Form
         this.Resize += this.veranderAfmeting;
         this.veranderAfmeting(null, null);
     }
+    private void verandernaam(object obj, EventArgs ea)
+    { //https://stackoverflow.com/questions/10797774/messagebox-with-input-field
+        Form owner = this.FindForm();
+        string WindowNaam = owner?.Text ?? "Untitled";
+        try
+        {
+            string nieuweNaam = Interaction.InputBox("Wat is de nieuwe naam?", "Rename", $"{WindowNaam}");
+            if (nieuweNaam == "")
+            {
+                nieuweNaam = $"{WindowNaam}";
+            }
+            else
+            {
+                owner.Text = nieuweNaam;
+                owner.Invalidate();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
     public string windowNaam
     {
         get { return this.Text; }
         set { this.Text = value; }
     }
-
+    public bool IsGewijzigd 
+    {
+        get { return schetscontrol?.Schets?.IsGewijzigd ?? false; }
+    }
+    public void isGewijzigd()
+    {
+        schetscontrol?.Schets?.MarkeerGewijzigd();
+    }
+    
     private void maakFileMenu(String[] filetypes)
     {   
         ToolStripMenuItem menu = new ToolStripMenuItem("File");
         menu.MergeAction = MergeAction.MatchOnly;
         menu.DropDownItems.Add("Afsluiten", null, this.afsluiten);
+        menu.DropDownItems.Add("Rename", null, this.verandernaam);
         ToolStripMenuItem submenu = new ToolStripMenuItem("Opslaan als");
         foreach (string f in filetypes)
             submenu.DropDownItems.Add(f, null, schetscontrol.Opslaan);

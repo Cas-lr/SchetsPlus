@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -10,7 +11,6 @@ public class SchetsControl : UserControl
 {   
     private Schets schets;
     private Color penkleur;
-    private bool isGewijzigd;
 
     // lijst van alle gemaakte doodles, een Doodle wordt toegevoegd bij MuisLos in de tools
     public List<Doodle> doodles = new List<Doodle>();
@@ -24,19 +24,21 @@ public class SchetsControl : UserControl
     public Schets Schets
     { get { return schets;   }
     }
+
     public SchetsControl()
     {   this.BorderStyle = BorderStyle.Fixed3D;
         this.schets = new Schets();
+        this.schets.bitmapcopy = (Bitmap)this.schets.bitmap.Clone();
         this.Paint += this.teken;
         this.Resize += this.veranderAfmeting;
         this.veranderAfmeting(null, null);
+        this.schets.BitmapChanged += (object o, EventArgs ea) => { isGewijzigd(); };
     }
     protected override void OnPaintBackground(PaintEventArgs e)
     {
     }
     private void teken(object o, PaintEventArgs pea)
     {   schets.Teken(pea.Graphics);
-        isGewijzigd = true;
     }
     private void veranderAfmeting(object o, EventArgs ea)
     {   schets.VeranderAfmeting(this.ClientSize);
@@ -64,6 +66,17 @@ public class SchetsControl : UserControl
     {   string kleurNaam = ((ToolStripMenuItem)obj).Text;
         penkleur = Color.FromName(kleurNaam);
     }
+    public void Openen(object obj, EventArgs ea)
+    {
+        Form owner = this.FindForm();
+        string fileNaam = owner?.Text ?? "Untitled";
+        if (owner is SchetsWin s) fileNaam = s.windowNaam;
+        string fileType = ((ToolStripMenuItem)obj).Text;
+        schets.bitmap = (Bitmap)Image.FromFile($"../../../drawings/{fileNaam}{fileType}");
+        schets.MarkeerGesaved();
+        Debug.WriteLine("Opened successfully.");
+        this.Invalidate();
+    }
     public void Opslaan(object obj, EventArgs ea)
     {
         Form owner = this.FindForm();
@@ -71,6 +84,11 @@ public class SchetsControl : UserControl
         if (owner is SchetsWin s) fileNaam = s.windowNaam;
         string fileType = ((ToolStripMenuItem)obj).Text;
         schets.bitmap.Save($"../../../drawings/{fileNaam}{fileType}");
-        isGewijzigd = false;
+        schets.MarkeerGesaved();
+        Debug.WriteLine("Saved successfully.");
+    }
+    private void isGewijzigd()
+    { 
+        this.Invalidate();
     }
 }
