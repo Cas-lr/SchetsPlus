@@ -97,5 +97,4 @@ public class Doodle
     public Color Kleur { get; set; }
     public int Dikte { get; set; }
     public string Tekst { get; set; }
-    public float PenDikte { get; set; }
 }
