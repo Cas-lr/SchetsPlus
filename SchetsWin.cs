@@ -243,6 +243,6 @@ public class SchetsWin : Form
         combolijn.SelectedValueChanged += schetscontrol.VeranderDikte;
         foreach (string l in lijndiktes)
             combolijn.Items.Add(l);
-        combolijn.SelectedIndex = 0;
+        combolijn.SelectedIndex = 1;
     }
 }

@@ -38,6 +38,13 @@ public class TekstTool : StartpuntTool
     {
         if (c >= 32)
         {
+            Graphics gr = s.MaakBitmapGraphics();
+            Font font = new Font("Tahoma", 40);
+            string tekst = c.ToString();
+            SizeF sz = gr.MeasureString(tekst, font, this.startpunt, StringFormat.GenericTypographic);
+            gr.DrawString(tekst, font, kwast, this.startpunt, StringFormat.GenericTypographic);
+            // gr.DrawRectangle(Pens.Black, startpunt.X, startpunt.Y, sz.Width, sz.Height);
+
             Doodle DoodleLetter = new Doodle
             {
                 Type = "TekstTool",
@@ -46,15 +53,11 @@ public class TekstTool : StartpuntTool
                 Tekst = c.ToString()
             };
             s.doodles.Add(DoodleLetter);
-            if (s.doodles.Count > 0)
-                Debug.WriteLine($"Doodle toegevoegd: Type={DoodleLetter.Type}, Start=({DoodleLetter.Start.X},{DoodleLetter.Start.Y}), Tekst={DoodleLetter.Tekst}, Kleur={DoodleLetter.Kleur}");
+            DoodleLetter.Eind = new Point(startpunt.X + (int)sz.Width, startpunt.Y + (int)sz.Height);
 
-            Graphics gr = s.MaakBitmapGraphics();
-            Font font = new Font("Tahoma", 40);
-            string tekst = c.ToString();
-            SizeF sz = gr.MeasureString(tekst, font, this.startpunt, StringFormat.GenericTypographic);
-            gr.DrawString(tekst, font, kwast, this.startpunt, StringFormat.GenericTypographic);
-            // gr.DrawRectangle(Pens.Black, startpunt.X, startpunt.Y, sz.Width, sz.Height);
+            if (s.doodles.Count > 0)
+                Debug.WriteLine($"Doodle toegevoegd: Type={DoodleLetter.Type}, Start=({DoodleLetter.Start.X},{DoodleLetter.Start.Y}), Einde=({DoodleLetter.Eind.X},{DoodleLetter.Eind.Y}), Tekst={DoodleLetter.Tekst}, Kleur={DoodleLetter.Kleur}");
+
             startpunt.X += (int)sz.Width;
 
             s.Invalidate();
@@ -226,7 +229,14 @@ public class GumTool : StartpuntTool
             Doodle d = s.doodles[i];
             if(Raak(d, p))
             {
+                s.doodles.RemoveAt(i);
                 Debug.WriteLine($"Doodle verwijderd: Type={d.Type}, Start=({d.Start.X},{d.Start.Y}), Eind=({d.Eind.X},{d.Eind.Y}), Kleur={d.Kleur}");
+                s.MaakBitmapGraphics().Clear(Color.White);
+                foreach (Doodle doodle in s.doodles)
+                {
+                    s.TekenEnkeleDoodle(doodle);
+                }
+                s.Invalidate();
                 break;
             }
         }
@@ -234,9 +244,27 @@ public class GumTool : StartpuntTool
 
     private bool Raak(Doodle d , Point p)
     {
-        Rectangle r = TweepuntTool.Punten2Rechthoek(d.Start, d.Eind);
-        r.Inflate(5, 5);
-        return r.Contains(p);
+        Rectangle r;
+
+        if (d.Type == "PenTool")
+        {
+            for (int i = 1; i < d.Punten.Count; i++)
+            {
+                int minX = Math.Min(d.Punten[i - 1].X, d.Punten[i].X);
+                int minY = Math.Min(d.Punten[i - 1].Y, d.Punten[i].Y);
+                int breedte = Math.Abs(d.Punten[i].X - d.Punten[i - 1].X);
+                int hoogte = Math.Abs(d.Punten[i].Y - d.Punten[i - 1].Y);
+                r = new Rectangle(minX - 5, minY - 5, breedte + 10, hoogte + 10); ;
+                if (r.Contains(p))
+                    return true;
+            }
+            return false;
+        }
+        else // voor andere tools
+        {
+            r = TweepuntTool.Punten2Rechthoek(d.Start, d.Eind);
+            return r.Contains(p);
+        }
     }
 
     public override void MuisDrag(SchetsControl s, Point p) { }
