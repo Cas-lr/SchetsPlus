@@ -81,6 +81,8 @@ public class SchetsControl : UserControl
             if (File.Exists($"../../../drawingtxt/{openfileNaam}"))
             {
                 string doodletext = File.ReadAllText($"../../../drawingtxt/{openfileNaam}");
+                Form owner = this.FindForm();
+                owner.Text = openfileNaam.Substring(0, openfileNaam.Length - 4);
                 schets.MarkeerGesaved();
                 this.Invalidate();
                 Console.WriteLine(doodletext);

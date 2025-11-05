@@ -35,8 +35,8 @@ public class SchetsWin : Form
     {
         if (this.IsGewijzigd) //Kijkt of de schets is gewijzigd, zo ja, vraagt of de gebruiker zeker weet dat die wil afsluiten zonder op te slaan.
         {
-            var dlg = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Wilt u afsluiten zonder op te slaan?", "Niet-opgeslagen wijzigingen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (dlg == DialogResult.No)
+            var waarschuwing = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Wilt u afsluiten zonder op te slaan?", "Niet-opgeslagen wijzigingen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (waarschuwing == DialogResult.No) // Sluit het window niet, omdat de gebruiker niet wil afsluiten.
                 return;
         }
         this.Close();
@@ -101,7 +101,7 @@ public class SchetsWin : Form
         //Verandert de naam van het huidige venster na invoer door de gebruiker in een inputbox.
         Form owner = this.FindForm(); //Haal het huidige form op.
         string WindowNaam = owner?.Text ?? "Untitled";
-        try
+        try //try-catch voor foutafhandeling, als er iets misgaat met de inputbox.
         {
             string nieuweNaam = Interaction.InputBox("Wat is de nieuwe naam?", "Rename", $"{WindowNaam}");
             if (nieuweNaam == "")
@@ -237,7 +237,7 @@ public class SchetsWin : Form
         lijndikte.Location = new Point(400, 3);
         lijndikte.AutoSize = true;
 
-        ComboBox combolijn = new ComboBox(); paneel.Controls.Add(combolijn);
+        ComboBox combolijn = new ComboBox(); paneel.Controls.Add(combolijn); //nieuwe combobox voor keuze lijndikte
         combolijn.Location = new Point(460, 0);
         combolijn.DropDownStyle = ComboBoxStyle.DropDownList;
         combolijn.SelectedValueChanged += schetscontrol.VeranderDikte;

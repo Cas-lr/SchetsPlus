@@ -56,8 +56,8 @@ public class SchetsEditor : Form
             {
                 var waarschuwing = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Wilt u afsluiten zonder op te slaan?", "Niet-opgeslagen wijzigingen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (waarschuwing == DialogResult.No)
-                    return; // cancel closing the editor
-                break; // user chose Yes, proceed to close
+                    return; // Sluit het window niet, omdat de gebruiker niet wil afsluiten.
+                break; // Gaat verder met sluiten.
             }
         }
         this.Close();
