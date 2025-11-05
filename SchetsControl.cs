@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -74,6 +75,26 @@ public class SchetsControl : UserControl
     public void Openen(object obj, EventArgs ea)
     {
         //hier komt nog wat
+        try
+        {
+            string openfileNaam = ((ToolStripMenuItem)obj).Text;
+            if (File.Exists($"../../../drawingtxt/{openfileNaam}"))
+            {
+                string doodletext = File.ReadAllText($"../../../drawingtxt/{openfileNaam}");
+                schets.MarkeerGesaved();
+                this.Invalidate();
+                Console.WriteLine(doodletext);
+            }
+            else
+            {
+                throw new Exception("Bestand bestaat niet.");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("De file kon niet gelezen worden:");
+            Console.WriteLine(e.Message);
+        }
     }
     public void Opslaan(object obj, EventArgs ea) //opslaan als met behulp van de bestandsnaam van het huidige venster en het gekozen bestandstype
     {

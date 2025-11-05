@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using System.Diagnostics;
+using System.IO;
 
 public class SchetsWin : Form
 {
@@ -56,6 +57,8 @@ public class SchetsWin : Form
         String[] deKleuren = { "Black", "Red", "Green", "Blue", "Yellow", "Magenta", "Cyan", "White" };
         String[] deLijndiktes = { "1", "3", "5", "7", "9", "15" };
         String[] deFiletypes = { ".bmp", ".gif", ".jpeg", ".jpg", ".png" }; //ondersteunde filetypes
+
+        String[] deGemaakteFiles = { }; //nog geen gemaakte bestandsnamen
 
         this.ClientSize = new Size(770, 550);
         huidigeTool = deTools[0];
@@ -127,7 +130,7 @@ public class SchetsWin : Form
     }
     
     private void maakFileMenu(String[] filetypes)
-    {   
+    {
         ToolStripMenuItem menu = new ToolStripMenuItem("File");
         menu.MergeAction = MergeAction.MatchOnly;
         menu.DropDownItems.Add("Afsluiten", null, this.afsluiten);
@@ -135,7 +138,21 @@ public class SchetsWin : Form
         ToolStripMenuItem submenu = new ToolStripMenuItem("Opslaan als");
         foreach (string f in filetypes)
             submenu.DropDownItems.Add(f, null, schetscontrol.Opslaan);
+        ToolStripMenuItem submenu2 = new ToolStripMenuItem("Openen");
+        try
+        {
+            string sourceDirectory = @"../../../drawingtxt";
+            var files = System.IO.Directory.EnumerateFiles(sourceDirectory, "*.txt", System.IO.SearchOption.AllDirectories);
+            foreach (string tf in files)
+                submenu2.DropDownItems.Add(Path.GetFileName(tf), null, schetscontrol.Openen);
+            Console.WriteLine("Bestanden succesvol geladen voor openen menu.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
         menu.DropDownItems.Add(submenu);
+        menu.DropDownItems.Add(submenu2);
         menuStrip.Items.Add(menu);
     }
 
