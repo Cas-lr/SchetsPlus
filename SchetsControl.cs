@@ -3,12 +3,17 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 public class SchetsControl : UserControl
 {   
     private Schets schets;
     private Color penkleur;
     private bool isGewijzigd;
+
+    // lijst van alle gemaakte doodles, een Doodle wordt toegevoegd bij MuisLos in de tools
+    public List<Doodle> doodles = new List<Doodle>();
 
     public bool IsGewijzigd
     { get { return isGewijzigd; }

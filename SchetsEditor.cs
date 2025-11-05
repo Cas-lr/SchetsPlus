@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 public class SchetsEditor : Form
 {
@@ -48,15 +49,15 @@ public class SchetsEditor : Form
     }
     private void afsluiten(object sender, EventArgs e)
     {
-        Form child = this.FindForm();
-        if (child is SchetsControl sw && sw.IsGewijzigd)
-        {
-            var result = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Weet u zeker dat u wilt afsluiten?", "Bevestig afsluiten", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (result == DialogResult.No)
-            {
-                return; // Annuleer afsluiten
-            }
-        }
+        //Form child = this.FindForm();
+        //if (child is SchetsControl sw && sw.IsGewijzigd)
+        //{
+        //    var result = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Weet u zeker dat u wilt afsluiten?", "Bevestig afsluiten", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+        //    if (result == DialogResult.No)
+        //    {
+        //        return; // Annuleer afsluiten
+        //    }
+        //}
         this.Close();
     }
 }

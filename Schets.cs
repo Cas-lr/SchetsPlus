@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Diagnostics;
 
 public class Schets
 {
     public Bitmap bitmap;
-    public List<Doodle> doodles = new List<Doodle>();
 
     public Schets()
     {
@@ -43,11 +43,12 @@ public class Schets
     }
 }
 
+// object dat alle gegevens van een nieuw element op de bitmap bevat
 public class Doodle
 {
-    public string Type;
-    public Point Start;
-    public Point Eind;
-    public Color Kleur;
-    public string Tekst;
+    public string Type { get; set; }
+    public Point Start { get; set; }
+    public Point Eind { get; set; }
+    public Color Kleur { get; set; }
+    public string Tekst { get; set; }
 }

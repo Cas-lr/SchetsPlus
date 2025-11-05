@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -23,6 +24,19 @@ public abstract class StartpuntTool : ISchetsTool
     }
     public abstract void MuisDrag(SchetsControl s, Point p);
     public abstract void Letter(SchetsControl s, char c);
+
+    // Maakt een Doodle object aan om in de lijst van doodles te zetten.
+    // Virtual zodat elke subklasse het heeft, en desnoods kan veranderen (tekst, pen)
+    protected virtual Doodle MaakDoodle(Point start, Point eind, Color kleur)
+    {
+        return new Doodle
+        {
+            Type = this.GetType().Name,
+            Start = start,
+            Eind = eind,
+            Kleur = kleur
+        };
+    }
 }
 
 public class TekstTool : StartpuntTool
@@ -30,6 +44,18 @@ public class TekstTool : StartpuntTool
     public override string ToString() { return "tekst"; }
 
     public override void MuisDrag(SchetsControl s, Point p) { }
+
+    //protected override Doodle MaakDoodle(Point start, Point eind, Color kleur)
+    //{
+    //    return new Doodle
+    //    {
+    //        Type = "Tekst",
+    //        Startpunt = start,
+    //        Eindpunt = start, // bij tekst irrelevant
+    //        Kleur = kleur,
+    //        Tekst = this.ingetypteTekst
+    //    };
+    //}
 
     public override void Letter(SchetsControl s, char c)
     {
@@ -44,6 +70,11 @@ public class TekstTool : StartpuntTool
                                             this.startpunt, StringFormat.GenericTypographic);
             // gr.DrawRectangle(Pens.Black, startpunt.X, startpunt.Y, sz.Width, sz.Height);
             startpunt.X += (int)sz.Width;
+
+            // Voeg letter toe aan doodles lijst
+            Doodle d = MaakDoodle(this.startpunt, this.startpunt, s.PenKleur);
+            s.doodles.Add(d);
+
             s.Invalidate();
         }
     }
@@ -73,6 +104,13 @@ public abstract class TweepuntTool : StartpuntTool
     public override void MuisLos(SchetsControl s, Point p)
     {   base.MuisLos(s, p);
         this.Compleet(s.MaakBitmapGraphics(), this.startpunt, p);
+
+        // voeg Doodle toe aan lijst in SchetsControl
+        Doodle d = MaakDoodle(this.startpunt, p, s.PenKleur);
+        Debug.WriteLine($"TekenObject toegevoegd: Type={d.Type}, Start=({d.Start.X},{d.Start.Y}), Eind=({d.Eind.X},{d.Eind.Y}), Kleur={d.Kleur}"); 
+        Debug.WriteLine($"Huidige lijst: {s.doodles}");
+        s.doodles.Add(d);
+
         s.Invalidate();
     }
     public override void Letter(SchetsControl s, char c)
@@ -130,7 +168,8 @@ public class LijnTool : TweepuntTool
     public override string ToString() { return "lijn"; }
 
     public override void Bezig(Graphics g, Point p1, Point p2)
-    {   g.DrawLine(MaakPen(this.kwast,3), p1, p2);
+    {   
+        g.DrawLine(MaakPen(this.kwast,3), p1, p2);
     }
 }
 
