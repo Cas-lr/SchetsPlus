@@ -32,7 +32,7 @@ public class SchetsWin : Form
 
     private void afsluiten(object obj, EventArgs ea)
     {
-        if (this.IsGewijzigd)
+        if (this.IsGewijzigd) //Kijkt of de schets is gewijzigd, zo ja, vraagt of de gebruiker zeker weet dat die wil afsluiten zonder op te slaan.
         {
             var dlg = MessageBox.Show("Er zijn niet-opgeslagen wijzigingen. Wilt u afsluiten zonder op te slaan?", "Niet-opgeslagen wijzigingen", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (dlg == DialogResult.No)
@@ -53,8 +53,9 @@ public class SchetsWin : Form
                                 , new TekstTool()
                                 , new GumTool()
                                 };
-        String[] deKleuren = { "Black", "Red", "Green", "Blue", "Yellow", "Magenta", "Cyan" };
-        String[] deFiletypes = { ".bmp", ".gif", ".jpeg", ".jpg", ".png" };
+        String[] deKleuren = { "Black", "Red", "Green", "Blue", "Yellow", "Magenta", "Cyan", "White" };
+        String[] deLijndiktes = { "1", "3", "5", "7", "9", "15" };
+        String[] deFiletypes = { ".bmp", ".gif", ".jpeg", ".jpg", ".png" }; //ondersteunde filetypes
 
         this.ClientSize = new Size(770, 550);
         huidigeTool = deTools[0];
@@ -64,19 +65,19 @@ public class SchetsWin : Form
 
         schetscontrol.MouseDown += (object o, MouseEventArgs mea) =>
                                     {   vast=true;  
-                                        huidigeTool.MuisVast(schetscontrol, mea.Location); isGewijzigd();
+                                        huidigeTool.MuisVast(schetscontrol, mea.Location);
                                     };
         schetscontrol.MouseMove += (object o, MouseEventArgs mea) =>
                                     {   if (vast)
-                                        huidigeTool.MuisDrag(schetscontrol, mea.Location); isGewijzigd();
+                                        huidigeTool.MuisDrag(schetscontrol, mea.Location);
                                     };
         schetscontrol.MouseUp   += (object o, MouseEventArgs mea) =>
                                     {   if (vast)
-                                        huidigeTool.MuisLos (schetscontrol, mea.Location); isGewijzigd();
+                                        huidigeTool.MuisLos (schetscontrol, mea.Location);
                                         vast = false; 
                                     };
         schetscontrol.KeyPress +=  (object o, KeyPressEventArgs kpea) => 
-                                    {   huidigeTool.Letter  (schetscontrol, kpea.KeyChar); isGewijzigd();
+                                    {   huidigeTool.Letter  (schetscontrol, kpea.KeyChar);
                                     };
         this.Controls.Add(schetscontrol);
 
@@ -88,13 +89,14 @@ public class SchetsWin : Form
         this.maakToolMenu(deTools);
         this.maakActieMenu(deKleuren);
         this.maakToolButtons(deTools);
-        this.maakActieButtons(deKleuren);
+        this.maakActieButtons(deKleuren, deLijndiktes);
         this.Resize += this.veranderAfmeting;
         this.veranderAfmeting(null, null);
     }
     private void verandernaam(object obj, EventArgs ea)
     { //https://stackoverflow.com/questions/10797774/messagebox-with-input-field
-        Form owner = this.FindForm();
+        //Verandert de naam van het huidige venster na invoer door de gebruiker in een inputbox.
+        Form owner = this.FindForm(); //Haal het huidige form op.
         string WindowNaam = owner?.Text ?? "Untitled";
         try
         {
@@ -119,13 +121,9 @@ public class SchetsWin : Form
         get { return this.Text; }
         set { this.Text = value; }
     }
-    public bool IsGewijzigd 
+    public bool IsGewijzigd //Kijkt of de schets is gewijzigd.
     {
         get { return schetscontrol?.Schets?.IsGewijzigd ?? false; }
-    }
-    public void isGewijzigd()
-    {
-        schetscontrol?.Schets?.MarkeerGewijzigd();
     }
     
     private void maakFileMenu(String[] filetypes)
@@ -188,7 +186,7 @@ public class SchetsWin : Form
         }
     }
 
-    private void maakActieButtons(String[] kleuren)
+    private void maakActieButtons(String[] kleuren, String[] lijndiktes)
     {   
         paneel = new Panel(); this.Controls.Add(paneel);
         paneel.Size = new Size(600, 24);
@@ -215,5 +213,18 @@ public class SchetsWin : Form
         foreach (string k in kleuren)
             cbb.Items.Add(k);
         cbb.SelectedIndex = 0;
+
+        Label lijndikte = new Label(); paneel.Controls.Add(lijndikte);
+        lijndikte.Text = "Lijndikte:";
+        lijndikte.Location = new Point(400, 3);
+        lijndikte.AutoSize = true;
+
+        ComboBox combolijn = new ComboBox(); paneel.Controls.Add(combolijn);
+        combolijn.Location = new Point(460, 0);
+        combolijn.DropDownStyle = ComboBoxStyle.DropDownList;
+        combolijn.SelectedValueChanged += schetscontrol.VeranderDikte;
+        foreach (string l in lijndiktes)
+            combolijn.Items.Add(l);
+        combolijn.SelectedIndex = 0;
     }
 }

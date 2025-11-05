@@ -5,8 +5,8 @@ using System.Diagnostics;
 
 public class Schets
 {   
-    private Bitmap _bitmap;
-    public Bitmap bitmap
+    private Bitmap _bitmap; // De interne bitmap
+    public Bitmap bitmap // De bitmap waarop getekend wordt
     {
         get { return _bitmap; }
         set
@@ -15,7 +15,7 @@ public class Schets
             OnBitmapChanged();
         }
     }
-    public Bitmap bitmapcopy;
+    public Bitmap bitmapcopy; //kopie van de bitmap voor vergelijking bij opslaan
 
     public List<Doodle> doodles = new List<Doodle>();
 
@@ -30,18 +30,18 @@ public class Schets
         IsGewijzigd = false;
     }
 
-    protected virtual void OnBitmapChanged()
+    protected virtual void OnBitmapChanged() //Roep dit event aan als de bitmap verandert, zodat andere objecten weten dat ze moeten updaten.
     {
         BitmapChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    public void MarkeerGewijzigd()
+    public void MarkeerGewijzigd() //Markeert de schets als gewijzigd.
     {
         IsGewijzigd = true;
         OnBitmapChanged();
     }
 
-    public void MarkeerGesaved()
+    public void MarkeerGesaved() //Markeert de schets als opgeslagen, en dus niet meer gewijzigd.
     {
         if (_bitmap != null)
         {
@@ -94,5 +94,6 @@ public class Doodle
     public Point Start { get; set; }
     public Point Eind { get; set; }
     public Color Kleur { get; set; }
+    public int Dikte { get; set; }
     public string Tekst { get; set; }
 }

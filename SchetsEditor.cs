@@ -49,9 +49,9 @@ public class SchetsEditor : Form
         s.Show();
         Debug.WriteLine("Nieuw schetsvenster geopend.");
     }
-    public void afsluiten(object sender, EventArgs e)
+    public void afsluiten(object sender, EventArgs e) 
     {
-        foreach (Form child in this.MdiChildren)
+        foreach (Form child in this.MdiChildren) //Kijkt of de schets is gewijzigd, zo ja, vraagt of de gebruiker zeker weet dat die wil afsluiten zonder op te slaan.
         {
             if (child is SchetsWin sw && sw.IsGewijzigd)
             {
