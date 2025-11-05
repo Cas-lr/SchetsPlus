@@ -78,14 +78,14 @@ public class SchetsControl : UserControl
         this.doodles.Clear();
         schets.Schoon();
         foreach (string lijn in d)
-        {  //Gaat elke regel in het bestand af en maakt een Doodle object aan op basis van de gegevens in die regel.
+        {  //Gaat elke regel in het bestand af en maakt een Doodle object aan op basis van de gegevens in die regel en tekent die ook met TekenEnkeleDoodle().
             Doodle EnkeleDoodle = DoodleInLijst(lijn);
             doodles.Add(EnkeleDoodle);
             TekenEnkeleDoodle(EnkeleDoodle);
         }         
         this.Invalidate();
     }
-    public Doodle DoodleInLijst(string lijn)
+    public Doodle DoodleInLijst(string lijn) //Maakt van een lijn Doodle-eigenschappen een doodle object.
     {
         string[] parts = lijn.Split(',');
         Doodle doodle = new Doodle
@@ -102,7 +102,7 @@ public class SchetsControl : UserControl
     }
     public void TekenEnkeleDoodle(Doodle d)
     {
-        // Hieronder wordt de d daadwerkelijk op de bitmap getekend.
+        // Hieronder wordt een doodle getekend getekend.
         Debug.WriteLine($"d geladen: Type={d.Type}, Start=({d.Start.X},{d.Start.Y}), Eind=({d.Eind.X},{d.Eind.Y}), Kleur={d.Kleur}, Dikte={d.Dikte}, Tekst={d.Tekst}");
         Graphics gr = this.MaakBitmapGraphics();
         if (d.Type == "TekstTool" && !string.IsNullOrEmpty(d.Tekst))
