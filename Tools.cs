@@ -215,11 +215,31 @@ public class PenTool : LijnTool
     }
 }
     
-public class GumTool : PenTool
+public class GumTool : StartpuntTool
 {
     public override string ToString() { return "gum"; }
 
-    public override void Bezig(Graphics g, Point p1, Point p2)
-    {   g.DrawLine(MaakPen(Brushes.White, 7), p1, p2);
+    public override void MuisVast(SchetsControl s, Point p)
+    {
+        for (int i = s.doodles.Count - 1; i >= 0; i--)
+        {
+            Doodle d = s.doodles[i];
+            if(Raak(d, p))
+            {
+                Debug.WriteLine($"Doodle verwijderd: Type={d.Type}, Start=({d.Start.X},{d.Start.Y}), Eind=({d.Eind.X},{d.Eind.Y}), Kleur={d.Kleur}");
+                break;
+            }
+        }
     }
+
+    private bool Raak(Doodle d , Point p)
+    {
+        Rectangle r = TweepuntTool.Punten2Rechthoek(d.Start, d.Eind);
+        r.Inflate(5, 5);
+        return r.Contains(p);
+    }
+
+    public override void MuisDrag(SchetsControl s, Point p) { }
+    public override void MuisLos(SchetsControl s, Point p) { }
+    public override void Letter(SchetsControl s, char c) { }
 }
