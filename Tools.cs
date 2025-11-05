@@ -110,7 +110,7 @@ public abstract class TweepuntTool : StartpuntTool
             Eind = p,
             Kleur = s.PenKleur,
             Dikte = dikte,
-        }
+        };
         s.doodles.Add(HuidigeDoodle);
         if (s.doodles.Count > 0)
             Debug.WriteLine($"Doodle toegevoegd: Type={HuidigeDoodle.Type}, Start=({HuidigeDoodle.Start.X},{HuidigeDoodle.Start.Y}), Eind=({HuidigeDoodle.Eind.X},{HuidigeDoodle.Eind.Y}), Kleur={HuidigeDoodle.Kleur}");
@@ -182,6 +182,8 @@ public class LijnTool : TweepuntTool
 public class PenTool : LijnTool
 {
     public override string ToString() { return "pen"; }
+
+    private Doodle HuidigeDoodle;
 
     // MuisVast begint de Doodle en maakt de lijst van punten aan
     public override void MuisVast(SchetsControl s, Point p)
