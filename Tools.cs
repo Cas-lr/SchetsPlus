@@ -26,20 +26,6 @@ public abstract class StartpuntTool : ISchetsTool
     }
     public abstract void MuisDrag(SchetsControl s, Point p);
     public abstract void Letter(SchetsControl s, char c);
-
-    // Maakt een Doodle object aan om in de lijst van doodles te zetten.
-    // Virtual zodat elke subklasse het heeft, en desnoods kan veranderen
-    protected virtual Doodle MaakDoodle(Point start, Point eind, Color kleur, int dikte)
-    {
-        return new Doodle
-        {
-            Type = this.GetType().Name,
-            Start = start,
-            Eind = eind,
-            Kleur = kleur,
-            Dikte = dikte
-        };
-    }
 }
 
 public class TekstTool : StartpuntTool
@@ -106,6 +92,7 @@ public abstract class TweepuntTool : StartpuntTool
         // wordt geerft door alle andere TweepuntTools (rechthoek, cirkel, lijn, etc..)
         Doodle HuidigeDoodle = new Doodle
         {
+            Type = this.GetType().Name,
             Start = this.startpunt,
             Eind = p,
             Kleur = s.PenKleur,
