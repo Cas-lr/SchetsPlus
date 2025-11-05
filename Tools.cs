@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Collections.Generic;
 
 public interface ISchetsTool
 {
@@ -107,9 +108,9 @@ public abstract class TweepuntTool : StartpuntTool
 
         // voeg Doodle toe aan lijst in SchetsControl
         Doodle d = MaakDoodle(this.startpunt, p, s.PenKleur);
-        Debug.WriteLine($"TekenObject toegevoegd: Type={d.Type}, Start=({d.Start.X},{d.Start.Y}), Eind=({d.Eind.X},{d.Eind.Y}), Kleur={d.Kleur}"); 
-        Debug.WriteLine($"Huidige lijst: {s.doodles}");
         s.doodles.Add(d);
+
+        Debug.WriteLine($"Doodle toegevoegd: Type={d.Type}, Start=({d.Start.X},{d.Start.Y}), Eind=({d.Eind.X},{d.Eind.Y}), Kleur={d.Kleur}");
 
         s.Invalidate();
     }
@@ -177,9 +178,44 @@ public class PenTool : LijnTool
 {
     public override string ToString() { return "pen"; }
 
+    private Doodle HuidigeDoodle;
+
+    public override void MuisVast(SchetsControl s, Point p)
+    {
+        base.MuisVast(s, p);
+        HuidigeDoodle = new Doodle
+        {
+            Type = "PenTool",
+            Kleur = s.PenKleur,
+            Start = p,
+            Punten = new List<Point> { p },
+            PenDikte = 3,
+        };
+    }
+
     public override void MuisDrag(SchetsControl s, Point p)
-    {   this.MuisLos(s, p);
-        this.MuisVast(s, p);
+    {
+        Graphics g = s.MaakBitmapGraphics();
+        Point vorige = HuidigeDoodle.Punten[HuidigeDoodle.Punten.Count - 1];
+        HuidigeDoodle.Punten.Add(p);
+
+        using (Pen pen = new Pen(HuidigeDoodle.Kleur, HuidigeDoodle.PenDikte))
+            g.DrawLine(pen, vorige, p);
+
+        s.Invalidate();
+    }
+
+    public override void MuisLos(SchetsControl s, Point p)
+    {
+        HuidigeDoodle.Eind = p;
+        s.doodles.Add(HuidigeDoodle);
+
+        if (HuidigeDoodle.Punten.Count > 0)
+            Debug.WriteLine($"Doodle-pen: laatste punt={HuidigeDoodle.Punten[HuidigeDoodle.Punten.Count - 1]}, aantal punten ={HuidigeDoodle.Punten.Count}");
+        if (s.doodles.Count > 0)
+            Debug.WriteLine($"Doodle toegevoegd: Type={HuidigeDoodle.Type}, Start=({HuidigeDoodle.Start.X},{HuidigeDoodle.Start.Y}), Eind=({HuidigeDoodle.Eind.X},{HuidigeDoodle.Eind.Y}), Kleur={HuidigeDoodle.Kleur}");
+
+        HuidigeDoodle = null;
     }
 }
     
