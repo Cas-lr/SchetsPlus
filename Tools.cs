@@ -110,7 +110,7 @@ public abstract class TweepuntTool : StartpuntTool
         this.Compleet(s.MaakBitmapGraphics(), this.startpunt, p);
 
         // voeg Doodle toe aan lijst in SchetsControl
-        Doodle d = MaakDoodle(this.startpunt, p, s.PenKleur, s.PenDikte);
+        Doodle d = MaakDoodle(this.startpunt, p, s.PenKleur, dikte);
         s.doodles.Add(d);
 
         Debug.WriteLine($"Doodle toegevoegd: Type={d.Type}, Start=({d.Start.X},{d.Start.Y}), Eind=({d.Eind.X},{d.Eind.Y}), Kleur={d.Kleur}");
@@ -192,7 +192,7 @@ public class PenTool : LijnTool
             Kleur = s.PenKleur,
             Start = p,
             Punten = new List<Point> { p },
-            PenDikte = 3,
+            Dikte = s.PenDikte,
         };
     }
 
@@ -202,7 +202,7 @@ public class PenTool : LijnTool
         Point vorige = HuidigeDoodle.Punten[HuidigeDoodle.Punten.Count - 1];
         HuidigeDoodle.Punten.Add(p);
 
-        using (Pen pen = new Pen(HuidigeDoodle.Kleur, HuidigeDoodle.PenDikte))
+        using (Pen pen = new Pen(HuidigeDoodle.Kleur, HuidigeDoodle.Dikte))
             g.DrawLine(pen, vorige, p);
 
         s.Invalidate();
