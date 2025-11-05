@@ -72,6 +72,16 @@ public class SchetsControl : UserControl
     {   string kleurNaam = ((ToolStripMenuItem)obj).Text;
         penkleur = Color.FromName(kleurNaam);
     }
+    //public void TekenDoodle(string[] d)
+    //{
+    //    
+    //}
+    public void ReplaceBitmap()
+    {
+        Graphics gr = Graphics.FromImage(schets.bitmap);
+        gr.FillRectangle(Brushes.White, 0, 0, schets.bitmap.Width, schets.bitmap.Height);
+        schets.MarkeerGewijzigd();
+    }
     public void Openen(object obj, EventArgs ea)
     {
         //hier komt nog wat
@@ -81,11 +91,14 @@ public class SchetsControl : UserControl
             if (File.Exists($"../../../drawingtxt/{openfileNaam}"))
             {
                 string doodletext = File.ReadAllText($"../../../drawingtxt/{openfileNaam}");
+                string [] lijnen = doodletext.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                //TekenDoodle(lijnen);
                 Form owner = this.FindForm();
                 owner.Text = openfileNaam.Substring(0, openfileNaam.Length - 4);
+                ReplaceBitmap();
                 schets.MarkeerGesaved();
                 this.Invalidate();
-                Console.WriteLine(doodletext);
+                Debug.WriteLine(lijnen);
             }
             else
             {
@@ -94,8 +107,8 @@ public class SchetsControl : UserControl
         }
         catch (Exception e)
         {
-            Console.WriteLine("De file kon niet gelezen worden:");
-            Console.WriteLine(e.Message);
+            Debug.WriteLine("De file kon niet gelezen worden:");
+            Debug.WriteLine(e.Message);
         }
     }
     public void OpslaanAlsDoodleText(object obj, EventArgs ea) //opslaan als doodle text bestand
@@ -107,7 +120,7 @@ public class SchetsControl : UserControl
         List<string> doodleLines = new List<string>();
         foreach (Doodle d in doodles)
         {
-            string line = $"{d.Type},{d.Start.X},{d.Start.Y},{d.Eind.X},{d.Eind.Y},{d.Kleur.ToArgb()},{d.Dikte}";
+            string line = $"{d.Type},{d.Start.X},{d.Start.Y},{d.Eind.X},{d.Eind.Y},{d.Kleur.ToArgb()},{d.Dikte}, {d.Tekst}";
             doodleLines.Add(line);
         }
         File.WriteAllLines($"../../../drawingtxt/{fileNaam}{fileType}", doodleLines);
