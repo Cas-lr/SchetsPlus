@@ -77,94 +77,94 @@ public class SchetsControl : UserControl
         if (d == null) return;
         this.doodles.Clear();
         schets.Schoon();
-        foreach (string line in d) //Zoekt elke regel in het bestand af en maakt een Doodle object aan op basis van de gegevens in die regel.
+        foreach (string lijn in d)
+        {  //Gaat elke regel in het bestand af en maakt een Doodle object aan op basis van de gegevens in die regel.
+            Doodle EnkeleDoodle = DoodleInLijst(lijn);
+            doodles.Add(EnkeleDoodle);
+            TekenEnkeleDoodle(EnkeleDoodle);
+        }         
+        this.Invalidate();
+    }
+    public Doodle DoodleInLijst(string lijn)
+    {
+        string[] parts = lijn.Split(',');
+        Doodle doodle = new Doodle
         {
-            string[] parts = line.Split(',');
-            if (parts.Length >= 7)
+            Type = parts[0],
+            Start = new Point(int.Parse(parts[1]), int.Parse(parts[2])),
+            Eind = new Point(int.Parse(parts[3]), int.Parse(parts[4])),
+            Kleur = Color.FromArgb(int.Parse(parts[5])),
+            Dikte = int.Parse(parts[6]),
+            Tekst = parts[7],
+            Punten = ParsePunten(parts.Length > 8 ? parts[8] : null)
+        };
+        return doodle;
+    }
+    public void TekenEnkeleDoodle(Doodle d)
+    {
+        // Hieronder wordt de d daadwerkelijk op de bitmap getekend.
+        Debug.WriteLine($"d geladen: Type={d.Type}, Start=({d.Start.X},{d.Start.Y}), Eind=({d.Eind.X},{d.Eind.Y}), Kleur={d.Kleur}, Dikte={d.Dikte}, Tekst={d.Tekst}");
+        Graphics gr = this.MaakBitmapGraphics();
+        if (d.Type == "TekstTool" && !string.IsNullOrEmpty(d.Tekst))
+        {
+            Font font = new Font("Tahoma", 40);
+            gr.DrawString(d.Tekst, font, new SolidBrush(d.Kleur), d.Start, StringFormat.GenericTypographic);
+        }
+        if (d.Type == "PenTool")
+        {
+            Pen pen = new Pen(d.Kleur, d.Dikte)
             {
-                Doodle doodle = new Doodle
+                StartCap = LineCap.Round,
+                EndCap = LineCap.Round
+            };
+            if (d.Punten.Count == 0) //Teken een lijn als er geen punten zijn opgeslagen
+                gr.DrawLine(pen, d.Start, d.Eind);
+            if (d.Punten.Count > 1)
+            {
+                for (int i = 0; i < d.Punten.Count - 1; i++)
                 {
-                    Type = parts[0],
-                    Start = new Point(int.Parse(parts[1]), int.Parse(parts[2])),
-                    Eind = new Point(int.Parse(parts[3]), int.Parse(parts[4])),
-                    Kleur = Color.FromArgb(int.Parse(parts[5])),
-                    Dikte = int.Parse(parts[6]),
-                    Tekst = parts[7],
-                    Punten = ParsePunten(parts.Length > 8 ? parts[8] : null)
-                };
-                doodles.Add(doodle);
-                // Hier zou je code kunnen toevoegen om de doodle daadwerkelijk te tekenen op de bitmap
-                Debug.WriteLine($"Doodle geladen: Type={doodle.Type}, Start=({doodle.Start.X},{doodle.Start.Y}), Eind=({doodle.Eind.X},{doodle.Eind.Y}), Kleur={doodle.Kleur}, Dikte={doodle.Dikte}, Tekst={doodle.Tekst}");
-                Graphics gr = this.MaakBitmapGraphics();
-                if (doodle.Type == "TekstTool" && !string.IsNullOrEmpty(doodle.Tekst))
-                {
-                    Font font = new Font("Tahoma", 40);
-                    gr.DrawString(doodle.Tekst, font, new SolidBrush(doodle.Kleur), doodle.Start, StringFormat.GenericTypographic);
-                }
-                if (doodle.Type == "PenTool")
-                {
-                    Pen pen = new Pen(doodle.Kleur, doodle.Dikte)
-                    {
-                        StartCap = LineCap.Round,
-                        EndCap = LineCap.Round
-                    };
-                    if (doodle.Punten.Count == 0) //Teken een lijn als er geen punten zijn opgeslagen
-                        gr.DrawLine(pen, doodle.Start, doodle.Eind);
-                    if (doodle.Punten.Count > 1)
-                    {
-                        for (int i = 0; i < doodle.Punten.Count - 1; i++)
-                        {
-                            gr.DrawLine(pen, doodle.Punten[i], doodle.Punten[i + 1]);
-                        }
-                    }
-                }
-                if (doodle.Type == "LijnTool")
-                {
-                    Pen pen = new Pen(doodle.Kleur, doodle.Dikte)
-                    {
-                        StartCap = LineCap.Round,
-                        EndCap = LineCap.Round
-                    };
-                    gr.DrawLine(pen, doodle.Start, doodle.Eind);
-                }
-                if (doodle.Type == "RechthoekTool")
-                {
-                    Pen pen = new Pen(doodle.Kleur, doodle.Dikte)
-                    {
-                        StartCap = LineCap.Round,
-                        EndCap = LineCap.Round
-                    };
-                    gr.DrawRectangle(pen, TweepuntTool.Punten2Rechthoek(doodle.Start, doodle.Eind));
-                }
-                if (doodle.Type == "VolRechthoekTool")
-                {
-                    Brush brush = new SolidBrush(doodle.Kleur);
-                    gr.FillRectangle(brush, TweepuntTool.Punten2Rechthoek(doodle.Start, doodle.Eind));
-                }
-                if (doodle.Type == "CirkelTool")
-                {
-                    Pen pen = new Pen(doodle.Kleur, doodle.Dikte)
-                    {
-                        StartCap = LineCap.Round,
-                        EndCap = LineCap.Round
-                    };
-                    gr.DrawEllipse(pen, TweepuntTool.Punten2Rechthoek(doodle.Start, doodle.Eind));
-                }
-                if (doodle.Type == "VolCirkelTool")
-                {
-                    Brush brush = new SolidBrush(doodle.Kleur);
-                    gr.FillEllipse(brush, TweepuntTool.Punten2Rechthoek(doodle.Start, doodle.Eind));
+                    gr.DrawLine(pen, d.Punten[i], d.Punten[i + 1]);
                 }
             }
         }
-        this.Invalidate();
+        if (d.Type == "LijnTool")
+        {
+            Pen pen = new Pen(d.Kleur, d.Dikte)
+            {
+                StartCap = LineCap.Round,
+                EndCap = LineCap.Round
+            };
+            gr.DrawLine(pen, d.Start, d.Eind);
+        }
+        if (d.Type == "RechthoekTool")
+        {
+            Pen pen = new Pen(d.Kleur, d.Dikte)
+            {
+                StartCap = LineCap.Round,
+                EndCap = LineCap.Round
+            };
+            gr.DrawRectangle(pen, TweepuntTool.Punten2Rechthoek(d.Start, d.Eind));
+        }
+        if (d.Type == "VolRechthoekTool")
+        {
+            Brush brush = new SolidBrush(d.Kleur);
+            gr.FillRectangle(brush, TweepuntTool.Punten2Rechthoek(d.Start, d.Eind));
+        }
+        if (d.Type == "CirkelTool")
+        {
+            Pen pen = new Pen(d.Kleur, d.Dikte)
+            {
+                StartCap = LineCap.Round,
+                EndCap = LineCap.Round
+            };
+            gr.DrawEllipse(pen, TweepuntTool.Punten2Rechthoek(d.Start, d.Eind));
+        }
+        if (d.Type == "VolCirkelTool")
+        {
+            Brush brush = new SolidBrush(d.Kleur);
+            gr.FillEllipse(brush, TweepuntTool.Punten2Rechthoek(d.Start, d.Eind));
+        }
     }
-    //public void ReplaceBitmap()
-    //{
-    //    Graphics gr = Graphics.FromImage(schets.bitmap);
-    //    gr.FillRectangle(Brushes.White, 0, 0, schets.bitmap.Width, schets.bitmap.Height);
-    //    schets.MarkeerGewijzigd();
-    //}
     public void Openen(object obj, EventArgs ea)
     {
         //Opent een file
@@ -177,8 +177,7 @@ public class SchetsControl : UserControl
                 string [] lijnen = doodletext.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 TekenDoodle(lijnen);
                 Form owner = this.FindForm();
-                owner.Text = openfileNaam.Substring(0, openfileNaam.Length - 4);
-                //ReplaceBitmap();
+                owner.Text = openfileNaam.Substring(0, openfileNaam.Length - 4); // zet de bestandsnaam als venstertitel
                 schets.MarkeerGesaved();
                 this.Invalidate();
                 Debug.WriteLine(lijnen);
@@ -197,13 +196,13 @@ public class SchetsControl : UserControl
     public void OpslaanAlsDoodleText(object obj, EventArgs ea) //opslaan als doodle text bestand
     {
         Form owner = this.FindForm();
-        string fileNaam = owner?.Text ?? "Untitled";
+        string fileNaam = owner?.Text ?? "Untitled"; // gebruik de bestandsnaam van het huidige venster
         if (owner is SchetsWin s) fileNaam = s.windowNaam;
         string fileType = ((ToolStripMenuItem)obj).Text;
         List<string> doodleLines = new List<string>();
         foreach (Doodle d in doodles)
         {
-            List<string> puntenlijst = new List<string>();
+            List<string> puntenlijst = new List<string>(); // voor de punten van de PenTool
             if (d.Type == "PenTool")
             {
                 foreach (Point p in d.Punten)
@@ -231,7 +230,7 @@ public class SchetsControl : UserControl
         this.Invalidate();
     }
 
-    private List<Point> ParsePunten(string puntenStr)
+    private List<Point> ParsePunten(string puntenStr) //Parset de puntenlijst van een Doodle (voornamelijk de PenTool-Doodle) uit een string.
     {
         var punten = new List<Point>();
         if (string.IsNullOrWhiteSpace(puntenStr))
